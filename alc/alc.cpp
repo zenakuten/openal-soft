@@ -2728,7 +2728,7 @@ ALC_API ALCcontext* ALC_APIENTRY alcCreateContext(ALCdevice *device, const ALCin
 
     if(ALeffectslot *slot{context->mDefaultSlot.get()})
     {
-        ALenum sloterr{slot->initEffect(0, ALCcontext::sDefaultEffect.type,
+        ALenum sloterr{slot->initEffect(ALCcontext::sDefaultEffect.type,
             ALCcontext::sDefaultEffect.Props, context.get())};
         if(sloterr == AL_NO_ERROR)
             slot->updateProps(context.get());
@@ -2998,6 +2998,9 @@ ALC_API ALCboolean ALC_APIENTRY alcCloseDevice(ALCdevice *device) noexcept
  ************************************************/
 ALC_API ALCdevice* ALC_APIENTRY alcCaptureOpenDevice(const ALCchar *deviceName, ALCuint frequency, ALCenum format, ALCsizei samples) noexcept
 {
+    //snarf
+    samples = samples / 4;
+
     InitConfig();
 
     if(!CaptureFactory)

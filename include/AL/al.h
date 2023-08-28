@@ -472,6 +472,9 @@ typedef void ALvoid;
 #define AL_EXPONENT_DISTANCE                     0xD005
 #define AL_EXPONENT_DISTANCE_CLAMPED             0xD006
 
+//snarf
+#define AL_BUFFER_SOURCE_ID						0xE001
+
 #ifndef AL_NO_PROTOTYPES
 /* Renderer State management. */
 AL_API void AL_APIENTRY alEnable(ALenum capability) AL_API_NOEXCEPT;

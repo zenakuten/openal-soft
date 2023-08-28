@@ -48,6 +48,9 @@ struct ALbuffer : public BufferStorage {
     /* Self ID */
     ALuint id{0};
 
+    // snarf
+    ALuint sourceId{0};
+
     static void SetName(ALCcontext *context, ALuint id, std::string_view name);
 
     DISABLE_ALLOC()

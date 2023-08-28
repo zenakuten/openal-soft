@@ -65,6 +65,9 @@
 #include "eax/x_ram.h"
 #endif // ALSOFT_EAX
 
+//snarf
+#include <windows.h>
+#include "debugapi.h"
 
 namespace {
 
@@ -286,9 +289,12 @@ void LoadData(ALCcontext *context, ALbuffer *ALBuf, ALsizei freq, ALuint size,
     const FmtChannels DstChannels, const FmtType DstType, const std::byte *SrcData,
     ALbitfieldSOFT access)
 {
+    /*
+    snarf
     if(ReadRef(ALBuf->ref) != 0 || ALBuf->MappedAccess != 0) UNLIKELY
         return context->setError(AL_INVALID_OPERATION, "Modifying storage for in-use buffer %u",
             ALBuf->id);
+            */
 
     const ALuint unpackalign{ALBuf->UnpackAlign};
     const ALuint align{SanitizeAlignment(DstType, unpackalign)};
@@ -1246,6 +1252,11 @@ FORCE_ALIGN void AL_APIENTRY alGetBufferiDirect(ALCcontext *context, ALuint buff
     case AL_UNPACK_AMBISONIC_ORDER_SOFT:
         *value = static_cast<int>(albuf->UnpackAmbiOrder);
         break;
+
+    case AL_BUFFER_SOURCE_ID:
+        *value = static_cast<ALint>(albuf->sourceId);
+        break;
+
 
     default:
         context->setError(AL_INVALID_ENUM, "Invalid buffer integer property 0x%04x", param);

@@ -3006,6 +3006,42 @@ FORCE_ALIGN void AL_APIENTRY alGetSourceiDirect(ALCcontext *context, ALuint sour
     if(!value) UNLIKELY
         return context->setError(AL_INVALID_VALUE, "NULL pointer");
 
+    //snarf
+    ALenum oldParam = param;
+    if (param == AL_BUFFERS_QUEUED)
+    {
+        param = AL_SOURCE_STATE;
+        std::ignore = GetProperty(Source, context, static_cast<SourceProp>(param),
+            al::span{ value, 1u });
+        param = oldParam;
+
+        if (*value != AL_PLAYING)
+            *value = 9;
+        else
+        {
+			*value = Source->mQueue.size();
+        }
+        return;
+    }
+    else if (param == AL_BUFFERS_PROCESSED)
+    {
+        int played{ 0 };
+        //if (Source->state != AL_INITIAL)
+        //{
+        const VoiceBufferItem* Current{ nullptr };
+        if (Voice * voice{ GetSourceVoice(Source, context) })
+            Current = voice->mCurrentBuffer.load(std::memory_order_relaxed);
+        for (auto& item : Source->mQueue)
+        {
+            if (&item == Current)
+                break;
+            ++played;
+        }
+        //}
+        *value = played;
+        return;
+    }
+
     std::ignore = GetProperty(Source, context, static_cast<SourceProp>(param),
         al::span{value, 1u});
 }
@@ -3422,6 +3458,12 @@ FORCE_ALIGN void AL_APIENTRY alSourceQueueBuffersDirect(ALCcontext *context, ALu
         }
         if(buffer)
         {
+            //snarf
+            if (buffer->sourceId == 0)
+            {
+                buffer->sourceId = src;
+            }
+
             if(buffer->mSampleRate < 1)
             {
                 context->setError(AL_INVALID_OPERATION, "Queueing buffer %u with no format",
@@ -3456,6 +3498,9 @@ FORCE_ALIGN void AL_APIENTRY alSourceQueueBuffersDirect(ALCcontext *context, ALu
         BufferList->mLoopEnd = buffer->mSampleLen;
         BufferList->mSamples = buffer->mData.data();
         BufferList->mBuffer = buffer;
+
+        //snarf
+        buffer->sourceId = src;
         IncrementRef(buffer->ref);
 
         if(BufferFmt == nullptr)
@@ -3548,6 +3593,7 @@ FORCE_ALIGN void AL_APIENTRY alSourceUnqueueBuffersDirect(ALCcontext *context, A
         auto &head = source->mQueue.front();
         if(ALbuffer *buffer{head.mBuffer})
         {
+            buffer->sourceId = src;
             *(buffers++) = buffer->id;
             DecrementRef(buffer->ref);
         }
