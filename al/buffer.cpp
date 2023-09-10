@@ -66,8 +66,10 @@
 #endif // ALSOFT_EAX
 
 //snarf
+#ifdef _WIN32
 #include <windows.h>
 #include "debugapi.h"
+#endif
 
 namespace {
 
